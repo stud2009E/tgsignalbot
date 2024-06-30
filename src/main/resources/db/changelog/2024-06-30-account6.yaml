@@ -1,0 +1,10 @@
+databaseChangeLog:
+     -  changeSet:
+             id:  06
+             author:  zhernovoy
+             changes:
+                  -  dropForeignKeyConstraint:
+                          baseTableName:  command
+                          baseTableSchemaName:  public
+                          constraintName:  FK_COMMAND
+

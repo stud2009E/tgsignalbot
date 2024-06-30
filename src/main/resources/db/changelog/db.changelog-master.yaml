@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - include:
+      file: /db/changelog/2024-06-18-account.sql
+  - include:
+      file: /db/changelog/2024-06-18-account1.sql
+  - include:
+      file: /db/changelog/2024-06-18-account2.sql
+  - include:
+      file: /db/changelog/2024-06-18-account3.sql
+  - include:
+      file: /db/changelog/2024-06-25-account4.sql
+  - include:
+      file: /db/changelog/2024-06-27-account5.sql
+  - include:
+      file: /db/changelog/2024-06-30-account6.yaml
+  - include:
+      file: /db/changelog/2024-06-30-account7.yaml
+  - include:
+      file: /db/changelog/2024-06-30-account8.yaml
+  - include:
+      file: /db/changelog/2024-06-30-account9.yaml
+  - include:
+      file: /db/changelog/2024-06-30-account10.yaml

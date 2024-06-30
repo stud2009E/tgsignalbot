@@ -1,0 +1,18 @@
+databaseChangeLog:
+  -  changeSet:
+       id:  07
+       author:  zhernovoy
+       changes:
+         -  addForeignKeyConstraint:
+              baseColumnNames:  id
+              baseTableName:  available_command
+              baseTableSchemaName:  public
+              constraintName:  fk_command
+              deferrable:  true
+              initiallyDeferred:  true
+              onDelete:  CASCADE
+              onUpdate:  RESTRICT
+              referencedColumnNames:  id
+              referencedTableName:  command
+              referencedTableSchemaName:  public
+              validate:  true
