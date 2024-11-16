@@ -1,17 +1,5 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:8090/postgres
-    username: postgres
-    password: postgres
-    mail:
-      protocol: smtps
-      host: smtp.yandex.ru
-      port: 465
-      username:
-      password:
-      properties:
-        mail:
-          smtp:
-            auth: true
-          starttls:
-            enable: true
+service:
+  description: tg-bot signals
+
+server:
+  port: 8091
