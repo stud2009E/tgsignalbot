@@ -1,0 +1,19 @@
+id: /search
+command: /search
+description: search ticker scenario
+steps:
+  - id: input_wait
+    stepTrue: input_accept
+    stepFalse: ~
+    trigger: COMMAND
+    handler: SearchCommandHandler
+  - id: input_accept
+    stepTrue: input_save
+    stepFalse: input_wait
+    trigger: INPUT
+    handler: SearchTickerHandler
+  - id: ticker_save
+    stepTrue: ~
+    stepFalse: ~
+    trigger: BUTTON
+    handler: SearchButtonHandler

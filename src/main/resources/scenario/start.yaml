@@ -1,0 +1,9 @@
+id: /start
+command: /start
+description: start bot scenario
+steps:
+  - id: hello
+    stepTrue: ~
+    stepFalse: ~
+    trigger: COMMAND
+    handler: StartCommandHandler
