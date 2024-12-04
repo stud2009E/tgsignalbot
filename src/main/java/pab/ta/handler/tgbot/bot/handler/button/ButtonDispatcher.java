@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.ActionHandler;
-import pab.ta.handler.tgbot.bot.handler.ActionHandler.ActionMessage;
 import pab.ta.handler.tgbot.bot.handler.HandlerType;
 import pab.ta.handler.tgbot.bot.handler.UpdateDispatcher;
 import pab.ta.handler.tgbot.bot.scenario.Scenario;
@@ -19,8 +18,6 @@ import pab.ta.handler.tgbot.bot.state.StateRecord;
 import pab.ta.handler.tgbot.bot.state.StateStore;
 import pab.ta.handler.tgbot.helpers.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -52,7 +49,7 @@ public class ButtonDispatcher implements UpdateDispatcher {
     }
 
     @Override
-    public void dispatch(Update update) {
+    public void dispatch(Update update) throws TelegramApiException {
         if (!canHandle(update)) {
             throw new IllegalArgumentException("Not a callback query!");
         }
@@ -66,34 +63,24 @@ public class ButtonDispatcher implements UpdateDispatcher {
         ButtonHandler handler = (ButtonHandler) step.getActionHandler();
         ActionHandler.ParsedCallbackData buttonData = handler.parseCallBackData(query.getData());
 
-        List<SendMessage> resultMessages = new ArrayList<>();
-        ActionMessage actionMessage = null;
 
         if (!buttonData.scenarioId().equals(scenario.getId()) || !buttonData.stepId().equals(step.getId())) {
-            resultMessages.add(SendMessage.builder()
+            SendMessage sendMessage = SendMessage.builder()
                     .chatId(Utils.chatId(update))
                     .text("Waiting button press from message!")
-                    .build());
-        } else {
-            actionMessage = handler.process(update);
-            resultMessages.addAll(actionMessage.messages());
+                    .build();
+            client.execute(sendMessage);
+
+            return;
         }
+
+        String stepId = handler.process(update);
 
         AnswerCallbackQuery close = AnswerCallbackQuery.builder()
                 .callbackQueryId(query.getId()).build();
 
-        try {
-            client.execute(close);
+        client.execute(close);
 
-            for (SendMessage resultMessage : resultMessages) {
-                client.execute(resultMessage);
-            }
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (Objects.nonNull(actionMessage)) {
-            store.setOrRemove(update, scenario.getId(), actionMessage.nextStepId());
-        }
+        store.setOrRemove(update, scenario.getId(), stepId);
     }
 }

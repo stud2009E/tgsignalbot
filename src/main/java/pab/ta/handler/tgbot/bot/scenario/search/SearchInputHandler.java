@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.input.InputHandler;
 import pab.ta.handler.tgbot.bot.scenario.Step;
 import pab.ta.handler.tgbot.helpers.Utils;
@@ -25,32 +27,35 @@ import java.util.stream.Stream;
 public class SearchInputHandler implements InputHandler {
 
     private Step step;
+    private final TelegramClient client;
 
     record TickerInfo(String ticker, String type, String description) {
     }
 
     @Override
-    public ActionMessage process(Update update) {
+    public String process(Update update) throws TelegramApiException {
         Message message = update.getMessage();
         String input = message.getText();
 
         if (input.length() < 3) {
-            return new ActionMessage(
-                    List.of(SendMessage.builder()
-                            .chatId(Utils.chatId(update))
-                            .text("Input ticker, minimum 3 symbols:").build()),
-                    step.getId()
-            );
+            var sendMessage = SendMessage.builder()
+                    .chatId(Utils.chatId(update))
+                    .text("Input ticker, minimum 3 symbols:").build();
+
+            client.execute(sendMessage);
+
+            return step.getId();
         }
 
         List<TickerInfo> tickers = mockSearch(message.getText());
         if (tickers.isEmpty()) {
-            return new ActionMessage(
-                    List.of(SendMessage.builder()
-                            .chatId(Utils.chatId(update))
-                            .text("Nothing found. Try again!").build()),
-                    step.getId()
-            );
+            var sendMessage = SendMessage.builder()
+                    .chatId(Utils.chatId(update))
+                    .text("Nothing found. Try again!").build();
+
+            client.execute(sendMessage);
+
+            return step.getId();
         }
 
         String scenarioId = step.getScenario().getId();
@@ -77,8 +82,11 @@ public class SearchInputHandler implements InputHandler {
                     .build();
         }).toList();
 
+        for (var sendMessage : messages) {
+            client.execute(sendMessage);
+        }
 
-        return new ActionMessage(messages, step.getStepTrue());
+        return step.getStepTrue();
     }
 
 
@@ -92,5 +100,4 @@ public class SearchInputHandler implements InputHandler {
 
         return rnd > 5 ? result : List.of();
     }
-
 }

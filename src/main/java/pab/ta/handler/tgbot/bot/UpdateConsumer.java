@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pab.ta.handler.tgbot.bot.handler.UpdateDispatcher;
 
 import java.util.Map;
@@ -18,8 +19,12 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     public void consume(Update update) {
         for (UpdateDispatcher dispatcher : dispatcherMap.values()) {
             if (dispatcher.canHandle(update)) {
-                dispatcher.dispatch(update);
-                return;
+                try {
+                    dispatcher.dispatch(update);
+                    return;
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

@@ -7,12 +7,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
-import pab.ta.handler.tgbot.bot.handler.ActionHandler.ActionMessage;
 import pab.ta.handler.tgbot.bot.handler.UpdateDispatcher;
 import pab.ta.handler.tgbot.bot.scenario.Scenario;
 import pab.ta.handler.tgbot.bot.scenario.ScenarioFactory;
 import pab.ta.handler.tgbot.bot.scenario.Step;
 import pab.ta.handler.tgbot.bot.state.StateStore;
+import pab.ta.handler.tgbot.helpers.Utils;
 
 import java.util.Objects;
 
@@ -20,9 +20,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CommandDispatcher implements UpdateDispatcher {
 
-    private final TelegramClient client;
     private final ScenarioFactory factory;
     private final StateStore store;
+    private final TelegramClient client;
 
     @Override
     public boolean canHandle(Update update) {
@@ -33,29 +33,28 @@ public class CommandDispatcher implements UpdateDispatcher {
                 && !update.hasCallbackQuery();
     }
 
-    public void dispatch(Update update) {
+    public void dispatch(Update update) throws TelegramApiException {
         if (!canHandle(update)) {
             throw new IllegalArgumentException("Not a command!");
         }
-
-        Scenario scenario = factory.createInstance("scenario" + update.getMessage().getText() + ".yaml");
-
-        if (Objects.isNull(scenario)) {
-            throw new RuntimeException("Scenario loading error!");
+        Scenario scenario;
+        try {
+            scenario = factory.createInstance("scenario" + update.getMessage().getText() + ".yaml");
+        } catch (Exception ignored) {
+            client.execute(
+                    SendMessage.builder()
+                            .chatId(Utils.chatId(update))
+                            .text("Command is not implemented!")
+                            .build()
+            );
+            return;
         }
+
         Step startStep = scenario.getStartStep();
 
         CommandHandler handler = (CommandHandler) startStep.getActionHandler();
-        ActionMessage actionMessage = handler.process(update);
+        String stepId = handler.process(update);
 
-        try {
-            for (SendMessage sendMessage : actionMessage.messages()) {
-                client.execute(sendMessage);
-            }
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
-        }
-
-        store.setOrRemove(update, scenario.getId(), actionMessage.nextStepId());
+        store.setOrRemove(update, scenario.getId(), stepId);
     }
 }

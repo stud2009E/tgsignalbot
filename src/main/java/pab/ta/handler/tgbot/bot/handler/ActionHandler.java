@@ -1,10 +1,8 @@
 package pab.ta.handler.tgbot.bot.handler;
 
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import pab.ta.handler.tgbot.bot.scenario.Step;
-
-import java.util.List;
 
 public interface ActionHandler {
     String SEPARATOR = "#";
@@ -13,7 +11,7 @@ public interface ActionHandler {
 
     Step getStep();
 
-    ActionMessage process(Update update);
+    String process(Update update) throws TelegramApiException;
 
     default String formatCallBackData(String scenarioId, String stepId, String data) {
         return scenarioId
@@ -32,6 +30,4 @@ public interface ActionHandler {
     record ParsedCallbackData(String scenarioId, String stepId, String data) {
     }
 
-    record ActionMessage(List<SendMessage> messages, String nextStepId) {
-    }
 }
