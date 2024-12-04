@@ -2,7 +2,6 @@ package pab.ta.handler.tgbot.bot.handler.command;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -12,7 +11,6 @@ import pab.ta.handler.tgbot.bot.scenario.Scenario;
 import pab.ta.handler.tgbot.bot.scenario.ScenarioFactory;
 import pab.ta.handler.tgbot.bot.scenario.Step;
 import pab.ta.handler.tgbot.bot.state.StateStore;
-import pab.ta.handler.tgbot.helpers.Utils;
 
 import java.util.Objects;
 
@@ -28,6 +26,12 @@ public class CommandDispatcher implements UpdateDispatcher {
     public boolean canHandle(Update update) {
         Message message = update.getMessage();
 
+        try {
+            factory.createInstance(update.getMessage().getText());
+        } catch (Exception ignored) {
+            return false;
+        }
+
         return Objects.nonNull(message)
                 && message.isCommand()
                 && !update.hasCallbackQuery();
@@ -37,18 +41,8 @@ public class CommandDispatcher implements UpdateDispatcher {
         if (!canHandle(update)) {
             throw new IllegalArgumentException("Not a command!");
         }
-        Scenario scenario;
-        try {
-            scenario = factory.createInstance("scenario" + update.getMessage().getText() + ".yaml");
-        } catch (Exception ignored) {
-            client.execute(
-                    SendMessage.builder()
-                            .chatId(Utils.chatId(update))
-                            .text("Command is not implemented!")
-                            .build()
-            );
-            return;
-        }
+        
+        Scenario scenario = factory.createInstance(update.getMessage().getText());
 
         Step startStep = scenario.getStartStep();
 

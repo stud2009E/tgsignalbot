@@ -1,0 +1,9 @@
+id: /reset
+command: /reset
+description: reset scenario
+steps:
+  - id: hello
+    stepTrue: ~
+    stepFalse: ~
+    trigger: COMMAND
+    handler: ResetCommandHandler

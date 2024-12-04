@@ -35,8 +35,10 @@ public class ButtonDispatcher implements UpdateDispatcher {
             return false;
         }
 
-        Scenario scenario = factory.createInstance("scenario" + state.getScenarioId() + ".yaml");
-        if (Objects.isNull(scenario)) {
+        Scenario scenario;
+        try {
+            scenario = factory.createInstance(state.getScenarioId());
+        } catch (Exception ignored) {
             return false;
         }
 
@@ -55,7 +57,7 @@ public class ButtonDispatcher implements UpdateDispatcher {
         }
 
         StateRecord state = store.get(update);
-        Scenario scenario = factory.createInstance("scenario" + state.getScenarioId() + ".yaml");
+        Scenario scenario = factory.createInstance(state.getScenarioId());
         Step step = scenario.getStep(state.getStepId());
 
         CallbackQuery query = update.getCallbackQuery();

@@ -13,7 +13,7 @@ public class ScenarioTest {
         ScenarioFactory factory = new ScenarioFactory();
 
 
-        Scenario scenario = factory.createInstance("example_scenario.yml");
+        Scenario scenario = factory.createInstance("test-scenario");
 
 
         Assertions.assertEquals(scenario.getId(), "/search");

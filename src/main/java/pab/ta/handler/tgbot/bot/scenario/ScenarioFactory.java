@@ -11,16 +11,20 @@ import java.io.InputStream;
 @Component
 public class ScenarioFactory {
 
-    public Scenario createInstance(String path) {
+    public Scenario createInstance(String fileName) {
 
         InputStream inputStream = this.getClass()
                 .getClassLoader()
-                .getResourceAsStream(path);
+                .getResourceAsStream(getPath(fileName));
 
         Scenario scenario = loader().load(inputStream);
         scenario.init();
 
         return scenario;
+    }
+
+    protected String getPath(String fileName) {
+        return "scenario/" + fileName + ".yml";
     }
 
 
