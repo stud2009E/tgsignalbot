@@ -22,4 +22,8 @@ public class StateRecord {
     @ToString.Include
     @Getter
     private final String stepId;
+
+    @Setter
+    @Getter
+    private Object data;
 }

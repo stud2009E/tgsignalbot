@@ -7,9 +7,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.input.InputHandler;
@@ -17,8 +14,6 @@ import pab.ta.handler.tgbot.bot.scenario.Step;
 import pab.ta.handler.tgbot.helpers.Utils;
 
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Stream;
 
 @Setter
 @Getter
@@ -28,9 +23,9 @@ public class SearchInputHandler implements InputHandler {
 
     private Step step;
     private final TelegramClient client;
+    private final MockTickerSearch mockSearch;
 
-    record TickerInfo(String ticker, String type, String description) {
-    }
+    private final SearchButtonSaveHandler buttonSaveHandler;
 
     @Override
     public String process(Update update) throws TelegramApiException {
@@ -47,7 +42,7 @@ public class SearchInputHandler implements InputHandler {
             return step.getId();
         }
 
-        List<TickerInfo> tickers = mockSearch(message.getText());
+        List<MockTickerSearch.TickerInfo> tickers = mockSearch.getFor(message.getText());
         if (tickers.isEmpty()) {
             var sendMessage = SendMessage.builder()
                     .chatId(Utils.chatId(update))
@@ -58,46 +53,13 @@ public class SearchInputHandler implements InputHandler {
             return step.getId();
         }
 
-        String scenarioId = step.getScenario().getId();
-        String stepTrueId = step.getStepTrue();
-
-
-        List<SendMessage> messages = tickers.stream().map(info -> {
-            var btn = InlineKeyboardButton.builder()
-                    .text("save " + info.ticker())
-                    .callbackData(formatCallBackData(scenarioId, stepTrueId, info.ticker()))
-                    .build();
-
-            var markup = InlineKeyboardMarkup.builder()
-                    .keyboardRow(new InlineKeyboardRow(btn))
-                    .build();
-
-            var text = info.ticker() + " " + info.type() + " " + info.description();
-
-            return (SendMessage) SendMessage.builder()
-                    .chatId(Utils.chatId(update))
-                    .parseMode("HTML")
-                    .text(text)
-                    .replyMarkup(markup)
-                    .build();
-        }).toList();
+        Long chatId = Utils.chatId(update);
+        List<SendMessage> messages = buttonSaveHandler.getButtonsForMe(tickers, chatId);
 
         for (var sendMessage : messages) {
             client.execute(sendMessage);
         }
 
         return step.getStepTrue();
-    }
-
-
-    private List<TickerInfo> mockSearch(String text) {
-        var result = Stream.iterate(1, a -> a + 1)
-                .limit(5)
-                .map(i -> new TickerInfo(text + i, "Type" + i, "description" + i))
-                .toList();
-
-        int rnd = new Random().nextInt(10);
-
-        return rnd > 5 ? result : List.of();
     }
 }

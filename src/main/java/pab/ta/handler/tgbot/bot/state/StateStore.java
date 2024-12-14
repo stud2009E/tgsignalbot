@@ -54,5 +54,4 @@ public class StateStore {
 
         return store.get(Utils.uuid(userId, chatId));
     }
-
 }

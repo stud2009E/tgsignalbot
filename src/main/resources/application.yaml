@@ -3,3 +3,12 @@ service:
 
 server:
   port: 8091
+
+spring:
+  data:
+    mongodb:
+      user: ${MONGODB_USER}
+      password: ${MONGODB_PWD}
+      database: bot_db
+      host: localhost
+      port: 27017

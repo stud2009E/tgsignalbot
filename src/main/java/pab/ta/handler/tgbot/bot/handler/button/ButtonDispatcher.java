@@ -37,7 +37,7 @@ public class ButtonDispatcher implements UpdateDispatcher {
 
         Scenario scenario;
         try {
-            scenario = factory.createInstance(state.getScenarioId());
+            scenario = factory.getInstance(state.getScenarioId());
         } catch (Exception ignored) {
             return false;
         }
@@ -57,12 +57,12 @@ public class ButtonDispatcher implements UpdateDispatcher {
         }
 
         StateRecord state = store.get(update);
-        Scenario scenario = factory.createInstance(state.getScenarioId());
+        Scenario scenario = factory.getInstance(state.getScenarioId());
         Step step = scenario.getStep(state.getStepId());
 
         CallbackQuery query = update.getCallbackQuery();
 
-        ButtonHandler handler = (ButtonHandler) step.getActionHandler();
+        ActionHandler handler = step.getAction();
         ActionHandler.ParsedCallbackData buttonData = handler.parseCallBackData(query.getData());
 
 

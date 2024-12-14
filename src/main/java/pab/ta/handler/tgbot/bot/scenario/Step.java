@@ -1,9 +1,6 @@
 package pab.ta.handler.tgbot.bot.scenario;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import pab.ta.handler.tgbot.bot.handler.ActionHandler;
 import pab.ta.handler.tgbot.bot.handler.HandlerType;
 import pab.ta.handler.tgbot.helpers.ContextAccessor;
@@ -31,7 +28,18 @@ public class Step {
     @ToString.Include
     private String handler;
 
+    @Setter(AccessLevel.PRIVATE)
     private Scenario scenario;
+
+    @Setter(AccessLevel.PRIVATE)
+    private ActionHandler action;
+
+    public void init(Scenario scenario) {
+        this.scenario = scenario;
+
+        action = ContextAccessor.getBean(handler, ActionHandler.class);
+        action.setStep(this);
+    }
 
     public boolean isStart() {
         return Objects.equals(trigger, HandlerType.COMMAND);
@@ -39,12 +47,5 @@ public class Step {
 
     public boolean isEnd() {
         return Objects.isNull(stepTrue) && Objects.isNull(stepFalse);
-    }
-
-    public ActionHandler getActionHandler() {
-        ActionHandler action = ContextAccessor.getBean(handler, ActionHandler.class);
-        action.setStep(this);
-
-        return action;
     }
 }

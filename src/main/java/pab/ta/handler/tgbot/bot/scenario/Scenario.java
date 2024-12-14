@@ -39,8 +39,7 @@ public class Scenario {
     }
 
 
-
     public void init() {
-        steps.forEach(step -> step.setScenario(this));
+        steps.forEach(step -> step.init(this));
     }
 }

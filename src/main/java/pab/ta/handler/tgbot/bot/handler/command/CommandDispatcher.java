@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.UpdateDispatcher;
 import pab.ta.handler.tgbot.bot.scenario.Scenario;
 import pab.ta.handler.tgbot.bot.scenario.ScenarioFactory;
@@ -20,14 +19,13 @@ public class CommandDispatcher implements UpdateDispatcher {
 
     private final ScenarioFactory factory;
     private final StateStore store;
-    private final TelegramClient client;
 
     @Override
     public boolean canHandle(Update update) {
         Message message = update.getMessage();
 
         try {
-            factory.createInstance(update.getMessage().getText());
+            factory.getInstance(update.getMessage().getText());
         } catch (Exception ignored) {
             return false;
         }
@@ -42,11 +40,11 @@ public class CommandDispatcher implements UpdateDispatcher {
             throw new IllegalArgumentException("Not a command!");
         }
         
-        Scenario scenario = factory.createInstance(update.getMessage().getText());
+        Scenario scenario = factory.getInstance(update.getMessage().getText());
 
         Step startStep = scenario.getStartStep();
 
-        CommandHandler handler = (CommandHandler) startStep.getActionHandler();
+        CommandHandler handler = (CommandHandler) startStep.getAction();
         String stepId = handler.process(update);
 
         store.setOrRemove(update, scenario.getId(), stepId);

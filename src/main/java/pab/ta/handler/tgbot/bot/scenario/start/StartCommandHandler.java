@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.command.CommandHandler;
 import pab.ta.handler.tgbot.bot.scenario.Step;
+import pab.ta.handler.tgbot.data.documents.BotUser;
+import pab.ta.handler.tgbot.data.service.BotUserService;
 import pab.ta.handler.tgbot.helpers.Utils;
 
 
@@ -21,18 +23,17 @@ public class StartCommandHandler implements CommandHandler {
 
     private Step step;
     private final TelegramClient client;
+    private final BotUserService userService;
+
 
     @Override
     public String process(Update update) throws TelegramApiException {
 
-        String name = update.getMessage().getFrom().getFirstName();
-        if (name.isEmpty() || name.isBlank()) {
-            name = "incognito";
-        }
+        BotUser botUser = userService.createUser(update);
 
         SendMessage sendMessage = SendMessage.builder()
                 .chatId(Utils.chatId(update))
-                .text(String.format("Hello, %s!", name))
+                .text(String.format("Hello, %s!", botUser.getName()))
                 .build();
 
         client.execute(sendMessage);

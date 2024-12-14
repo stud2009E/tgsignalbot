@@ -33,7 +33,7 @@ public class InputDispatcher implements UpdateDispatcher {
 
         Scenario scenario;
         try {
-            scenario = factory.createInstance(state.getScenarioId());
+            scenario = factory.getInstance(state.getScenarioId());
         } catch (Exception ignored) {
             return false;
         }
@@ -55,10 +55,10 @@ public class InputDispatcher implements UpdateDispatcher {
         }
 
         StateRecord state = store.get(update);
-        Scenario scenario = factory.createInstance(state.getScenarioId());
+        Scenario scenario = factory.getInstance(state.getScenarioId());
         Step step = scenario.getStep(state.getStepId());
 
-        String stepId = step.getActionHandler().process(update);
+        String stepId = step.getAction().process(update);
 
         store.setOrRemove(update, scenario.getId(), stepId);
     }

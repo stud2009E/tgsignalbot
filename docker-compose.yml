@@ -1,0 +1,9 @@
+services:
+  mongodb:
+    image: "mongo:latest"
+    container_name: signal_db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=bot
+      - MONGO_INITDB_ROOT_PASSWORD=bot
+    ports:
+       - "27017:27017"

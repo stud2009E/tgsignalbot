@@ -11,7 +11,7 @@ import java.io.InputStream;
 @Component
 public class ScenarioFactory {
 
-    public Scenario createInstance(String fileName) {
+    public Scenario getInstance(String fileName) {
 
         InputStream inputStream = this.getClass()
                 .getClassLoader()
