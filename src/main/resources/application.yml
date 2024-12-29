@@ -1,0 +1,20 @@
+server:
+  port: 8091
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+
+spring:
+  application:
+    name: tgbot-service
+  data:
+    mongodb:
+      user: ${MONGODB_USER}
+      password: ${MONGODB_PWD}
+      database: bot_db
+      host: localhost
+      port: 27017

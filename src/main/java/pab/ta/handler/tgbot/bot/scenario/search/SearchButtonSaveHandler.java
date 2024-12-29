@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.button.ButtonHandler;
 import pab.ta.handler.tgbot.bot.scenario.Step;
-import pab.ta.handler.tgbot.bot.scenario.search.MockTickerSearch.TickerInfo;
+import pab.ta.handler.tgbot.bot.scenario.search.dto.AssetInfoDto;
 import pab.ta.handler.tgbot.bot.state.StateStore;
 import pab.ta.handler.tgbot.data.documents.BotUser;
 import pab.ta.handler.tgbot.data.service.BotUserService;
@@ -28,7 +28,7 @@ import java.util.List;
 @Getter
 @Component("SearchButtonSaveHandler")
 @RequiredArgsConstructor
-public class SearchButtonSaveHandler implements ButtonHandler<List<TickerInfo>> {
+public class SearchButtonSaveHandler implements ButtonHandler<List<AssetInfoDto>> {
 
     private Step step;
     private final TelegramClient client;
@@ -112,12 +112,12 @@ public class SearchButtonSaveHandler implements ButtonHandler<List<TickerInfo>> 
     }
 
     @Override
-    public List<SendMessage> getButtonsForMe(List<TickerInfo> tickers, Long chatId) {
+    public List<SendMessage> getButtonsForMe(List<AssetInfoDto> tickers, Long chatId) {
         String scenarioId = step.getScenario().getId();
         String stepId = step.getId();
 
         return tickers.stream().map(info -> {
-            OpsDecoder op = new OpsDecoder(info.ticker(), Operation.SAVE);
+            OpsDecoder op = new OpsDecoder(info.getTicker(), Operation.SAVE);
 
             var btn = InlineKeyboardButton.builder()
                     .text(op.toString())
@@ -128,7 +128,7 @@ public class SearchButtonSaveHandler implements ButtonHandler<List<TickerInfo>> 
                     .keyboardRow(new InlineKeyboardRow(btn))
                     .build();
 
-            var text = info.ticker() + " " + info.type() + " " + info.description();
+            var text = info.getTicker() + " " + info.getType() + " " + info.getDescription();
 
             return (SendMessage) SendMessage.builder()
                     .chatId(chatId)

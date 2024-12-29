@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 import pab.ta.handler.tgbot.bot.handler.input.InputHandler;
 import pab.ta.handler.tgbot.bot.scenario.Step;
+import pab.ta.handler.tgbot.bot.scenario.search.dto.AssetInfoDto;
 import pab.ta.handler.tgbot.helpers.Utils;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class SearchInputHandler implements InputHandler {
 
     private Step step;
     private final TelegramClient client;
-    private final MockTickerSearch mockSearch;
+    private final TickerSearch tickerSearch;
 
     private final SearchButtonSaveHandler buttonSaveHandler;
 
@@ -42,7 +43,8 @@ public class SearchInputHandler implements InputHandler {
             return step.getId();
         }
 
-        List<MockTickerSearch.TickerInfo> tickers = mockSearch.getFor(message.getText());
+        List<AssetInfoDto> tickers = tickerSearch.search(message.getText());
+
         if (tickers.isEmpty()) {
             var sendMessage = SendMessage.builder()
                     .chatId(Utils.chatId(update))

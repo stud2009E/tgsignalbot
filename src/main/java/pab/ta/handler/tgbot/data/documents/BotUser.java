@@ -8,8 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Document("bot_user")
 @Data
@@ -38,13 +38,9 @@ public class BotUser {
     @Field("chat_id")
     private Long chatId;
 
-    private List<String> tickers = new ArrayList<>();
+    private Set<String> tickers = new HashSet<>();
 
     public boolean addTicker(String ticker) {
-        if (tickers.contains(ticker)) {
-            return false;
-        }
-
         return tickers.add(ticker);
     }
 
@@ -52,8 +48,20 @@ public class BotUser {
         return tickers.remove(ticker);
     }
 
-
+    /**
+     * Returns the name of the user.
+     *
+     * @return The name of the user, or "incognito" if no name is available.
+     */
     public String getName() {
-        return getFirstName().isEmpty() ? getUserName().isEmpty() ? "incognito" : getFirstName() : getUserName();
+        if (firstName != null && !firstName.trim().isEmpty() ) {
+            return firstName;
+        }
+
+        if (userName != null && !userName.trim().isEmpty()) {
+            return userName;
+        }
+
+        return "incognito";
     }
 }

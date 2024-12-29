@@ -2,6 +2,7 @@ package pab.ta.handler.tgbot.data.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.message.Message;
@@ -26,25 +27,27 @@ public class BotUserService {
         repo.save(botUser);
     }
 
+    @Transactional
     public BotUser createUser(Update update) {
         Message message = update.getMessage();
         User user = message.getFrom();
 
         Optional<BotUser> optionalBotUser = repo.findById(user.getId());
         BotUser botUser;
-
-        if (optionalBotUser.isPresent()) {
-            return optionalBotUser.get();
+        if (optionalBotUser.isEmpty()) {
+            botUser = new BotUser();
+            botUser.setId(user.getId());
+        } else {
+            botUser = optionalBotUser.get();
         }
-        botUser = new BotUser();
-        botUser.setId(user.getId());
-        botUser.setFirstName(user.getFirstName());
-        botUser.setUserName(user.getFirstName());
-        botUser.setLanguageCode(user.getLanguageCode());
 
         botUser.setChatId(message.getChatId());
+        botUser.setFirstName(user.getFirstName());
+        botUser.setUserName(user.getUserName());
+        botUser.setLanguageCode(user.getLanguageCode());
 
         repo.save(botUser);
+
         return botUser;
     }
 }
